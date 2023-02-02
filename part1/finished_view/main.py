@@ -13,6 +13,7 @@
 # Исходный код
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from marshmallow import fields, Schema
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
@@ -30,9 +31,12 @@ class Book(db.Model):
     year = db.Column(db.Integer)
 
 
-class BookSchema:
+class BookSchema(Schema):
     # TODO определите здесь схему сериализации
-    pass
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
+    author = fields.Str()
+    year = fields.Int()
 
 # С помощью данного отрезка кода мы создаём
 # таблицу во временной базе данных и добавляем
@@ -49,6 +53,11 @@ with db.session.begin():
 # ######
 
 # TODO напишите роут здесь
+@app.route('/books')
+def books_page():
+    books_schema = BookSchema(many=True)
+    data = Book.query.all()
+    return books_schema.dumps(data)
 
 
 # чтобы проверить результат работы

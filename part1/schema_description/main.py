@@ -13,6 +13,7 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from marshmallow import fields, Schema
 import json
 
 app = Flask(__name__)
@@ -39,9 +40,12 @@ with db.session.begin():
     db.session.add(book)
 
 
-class BookSchema:
+class BookSchema(Schema):
     # TODO напишите схему здесь
-    pass
+    id = fields.Int(dump_only=True)
+    name = fields.Str()
+    author = fields.Str()
+    year = fields.Int()
 
 
 def serialize():
