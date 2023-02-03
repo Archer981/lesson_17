@@ -7,7 +7,7 @@
 #
 
 from flask import Flask
-from flask_restx import Api
+from flask_restx import Api, Resource
 from flask_sqlalchemy import SQLAlchemy
 from marshmallow import Schema, fields
 
@@ -51,7 +51,12 @@ with db.session.begin():
 
 
 # TODO напишите Class Based View здесь
-
+@book_ns.route('/')
+class BooksView(Resource):
+    def get(self):
+        result = Book.query.all()
+        print(result)
+        return books_schema.dump(result)
 
 # для проверки работоспособности запустите фаил
 # и зайдите в браузере на адрес http://127.0.0.1/books

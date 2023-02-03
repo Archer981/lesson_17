@@ -12,13 +12,14 @@
 #    список всех сущностей, определенных в cписке
 
 
-from flask import Flask
+from flask import Flask, jsonify
+from flask_restx import Api, Resource
 
 app = Flask(__name__)
 app. config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
 
-api = # TODO допишите код
-book_ns = # TODO допишите код
+api = Api(app) # TODO допишите код
+book_ns = api.namespace('books') # TODO допишите код
 
 books = [
     {
@@ -37,7 +38,10 @@ books = [
 
 
 # TODO напишите Class Based View здесь
-
+@book_ns.route('/')
+class ViewBook(Resource):
+    def get(self):
+        return jsonify(books)
 
 # для проверки работоспособности запустите фаил
 # и зайдите в браузере на адрес http://127.0.0.1/books

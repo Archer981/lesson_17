@@ -31,7 +31,7 @@ app. config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
 db = SQLAlchemy(app)
 
 api = Api(app)
-note_ns = # TODO допишите код
+note_ns = api.namespace('notes') # TODO допишите код
 
 
 class Note(db.Model):
@@ -61,24 +61,50 @@ with db.session.begin():
 
 
 # TODO Допишите Class Based View здесь
-# @ 
-# class ...
-#     def put(self, uid):
-#         pass
+@note_ns.route('/<int:uid>')
+class NoteView(Resource):
+    def put(self, uid):
+        note = Note.query.get(uid)
+        if not note:
+            return '', 404
+        req = request.json
+        note.text = req['text']
+        note.author = req['author']
+        db.session.add(note)
+        db.session.commit()
+        return '', 204
 
-#     def patch(self, uid):
-#         pass
+    def patch(self, uid):
+        note = Note.query.get(uid)
+        if not note:
+            return '', 404
+        req = request.json
+        if 'text' in req.keys():
+            note.text = req['text']
+        if 'author' in req.keys():
+            note.author = req['author']
+        db.session.add(note)
+        db.session.commit()
+        return '', 204
 
-#     def delete(self, uid):
-#         pass
+    def delete(self, uid):
+        note = Note.query.get(uid)
+        if not note:
+            return '', 404
+        db.session.delete(note)
+        db.session.commit()
+        return '', 204
 
+
+PUT = {'text': 'Заметка переделанная PUT', 'author': 'Автор Я'}
+PATCH = {'author': 'Снова я'}
 
 # # # # # # # # # # # #
 if __name__ == '__main__':
     client = app.test_client()                          # TODO вы можете раскомментировать   
-    # response = client.put('/notes/1', json=PUT)       # соответсвующе функции и  
-    # response = client.patch('/notes/1', json=PATCH)   # воспользоваться ими для самопроверки   
-    # response = client.delete('/notes/1', json='')     # аналогично заданию `post_with_db`   
+    # response = client.put('/notes/1', json=PUT)       # соответсвующе функции и
+    # response = client.patch('/notes/1', json=PATCH)   # воспользоваться ими для самопроверки
+    # response = client.delete('/notes/1', json='')     # аналогично заданию `post_with_db`
     session = db.session()
     cursor = session.execute("SELECT * FROM note").cursor
     mytable = prettytable.from_db_cursor(cursor)

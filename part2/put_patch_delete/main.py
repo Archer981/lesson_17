@@ -21,17 +21,17 @@
 # - С помощью DELETE-запроса на адрес `/notes/1`
 #   удалить данные о сущности с соответсвующим id
 
-from flask import Flask
-from flask_restx import Api
+from flask import Flask, request
+from flask_restx import Api, Resource
 from pprint import pprint
 
 app = Flask(__name__)
 
 api = Api(app)
-app. config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
+app.config['RESTX_JSON'] = {'ensure_ascii': False, 'indent': 2}
 
-api = # TODO допишите код
-note_ns = # TODO допишите код
+# api = # TODO допишите код
+note_ns = api.namespace('notes') # TODO допишите код
 
 notes = {
     1: {
@@ -47,16 +47,44 @@ notes = {
 }
 
 # TODO Допишите Class Based View здесь
-# @ 
-# class ...
-#     def put(self, uid):
-#         pass
+@note_ns.route('/<int:uid>')
+class NoteView(Resource):
+    def put(self, uid):
+        data = request.json
+        if uid in notes.keys():
+            note = notes[uid]
+        else:
+            return '', 404
+        note['text'] = data.get('text')
+        note['author'] = data.get('author')
+        notes[uid] = note
+        return '', 204
 
-#     def patch(self, uid):
-#         pass
 
-#     def delete(self, uid):
-#         pass
+
+    def patch(self, uid):
+        data = request.json
+        if uid not in notes.keys():
+            return '', 404
+        else:
+            note = notes[uid]
+        if data.get('text'):
+            note['text'] = data.get('text')
+        if data.get('author'):
+            note['author'] = data.get('author')
+        notes[uid] = note
+        return '', 204
+
+    def delete(self, uid):
+        if uid in notes.keys():
+            del notes[uid]
+            return '', 204
+        else:
+            return '', 404
+
+
+PUT = {"text": "New note 2", "author": "me"}
+PATCH = {"text": "Patched note"}
 
 
 # # # # # # # # # # # #                                    
